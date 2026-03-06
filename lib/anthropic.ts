@@ -112,3 +112,59 @@ export async function extractBusinessCard(
 
   return result.data;
 }
+
+export async function extractQRContact(
+  contextText: string,
+  hint: string
+): Promise<ExtractedCard> {
+  const prompt = `You are a contact data extraction specialist.
+
+${hint}
+
+Extract all available contact information from the data below.
+Return ONLY a valid JSON object — no markdown fences, no explanation, no preamble.
+Use empty string "" for any field not found.
+
+Required JSON shape:
+{
+  "name": "full name",
+  "title": "job title / position",
+  "company": "company or organization name",
+  "email": "email address",
+  "phone": "phone number",
+  "linkedin": "linkedin.com/in/handle or full URL if present, else empty string",
+  "tiktok": "tiktok handle or URL if present, else empty string",
+  "instagram": "instagram handle or URL if present, else empty string",
+  "website": "website URL if present, else empty string",
+  "location": "any location info, else empty string",
+  "alignmentScore": null,
+  "alignmentRationale": null
+}
+
+Data to extract from:
+${contextText}`;
+
+  const message = await anthropic.messages.create({
+    model: EXTRACTION_MODEL,
+    max_tokens: 512,
+    messages: [{ role: "user", content: prompt }],
+  });
+
+  const rawText =
+    message.content[0]?.type === "text" ? message.content[0].text : "{}";
+  const cleaned = rawText.replace(/```json|```/g, "").trim();
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(cleaned);
+  } catch {
+    throw new Error(`AI returned non-JSON response: ${rawText.slice(0, 200)}`);
+  }
+
+  const result = extractedCardSchema.safeParse(parsed);
+  if (!result.success) {
+    throw new Error(`AI response failed validation: ${result.error.message}`);
+  }
+
+  return result.data;
+}
