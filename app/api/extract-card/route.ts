@@ -54,14 +54,25 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const { frontImage, backImage } = parsed.data;
 
   // Extract card data via Anthropic Vision
+  // If back image causes an error, retry with front only
   let extracted: ExtractedCard;
   try {
     extracted = await extractBusinessCard(frontImage, backImage);
   } catch (err) {
-    console.error("[extract-card] Anthropic error:", err);
-    const message =
-      err instanceof Error ? err.message : "Extraction failed";
-    return NextResponse.json({ error: message }, { status: 502 });
+    if (backImage) {
+      console.warn("[extract-card] Failed with back image, retrying front-only:", err);
+      try {
+        extracted = await extractBusinessCard(frontImage);
+      } catch (retryErr) {
+        console.error("[extract-card] Front-only retry also failed:", retryErr);
+        const message = retryErr instanceof Error ? retryErr.message : "Extraction failed";
+        return NextResponse.json({ error: message }, { status: 502 });
+      }
+    } else {
+      console.error("[extract-card] Anthropic error:", err);
+      const message = err instanceof Error ? err.message : "Extraction failed";
+      return NextResponse.json({ error: message }, { status: 502 });
+    }
   }
 
   return NextResponse.json(extracted, { status: 200 });

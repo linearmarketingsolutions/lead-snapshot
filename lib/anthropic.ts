@@ -14,6 +14,8 @@ export const CARD_EXTRACTION_PROMPT = `You are a business card OCR and data extr
 
 Extract ALL contact information from the provided business card image(s).
 
+IMPORTANT: Business cards come in many shapes — standard landscape, square, vertical/portrait, round-cornered, mini, and non-standard sizes. Treat the entire image as a business card regardless of its aspect ratio or shape. Extract all visible text.
+
 Return ONLY a valid JSON object — no markdown fences, no explanation, no preamble.
 Use empty string "" for any field not found.
 
@@ -41,7 +43,8 @@ Rules:
 - For alignmentScore, infer likely decision-making influence from title/company context on the card itself
 - Use null for alignmentScore when there is not enough signal
 - Keep alignmentRationale under 20 words
-- Do not invent data — only extract what is visible`;
+- Do not invent data — only extract what is visible
+- If an image is blurry, dark, or unclear, extract whatever text is legible and leave the rest as empty string`;
 
 function detectMediaType(base64: string): "image/jpeg" | "image/png" | "image/gif" | "image/webp" {
   // Inspect the first few base64 chars to detect the image format

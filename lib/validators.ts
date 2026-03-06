@@ -20,7 +20,7 @@ export const extractCardRequestSchema = z.object({
     .string()
     .min(100, "Front image is required")
     .refine((v) => v.length < 10_000_000, "Image too large (max ~7MB)"),
-  backImage: z.string().optional(),
+  backImage: z.string().min(100, "Back image data appears invalid").optional(),
 });
 
 export const leadSchema = z.object({
