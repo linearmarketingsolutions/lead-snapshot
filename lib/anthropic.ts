@@ -8,7 +8,7 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
-export const EXTRACTION_MODEL = "claude-opus-4-5" as const;
+export const EXTRACTION_MODEL = "claude-haiku-4-5-20251001" as const;
 
 export const CARD_EXTRACTION_PROMPT = `You are a business card OCR and data extraction specialist.
 
@@ -43,6 +43,16 @@ Rules:
 - Keep alignmentRationale under 20 words
 - Do not invent data — only extract what is visible`;
 
+function detectMediaType(base64: string): "image/jpeg" | "image/png" | "image/gif" | "image/webp" {
+  // Inspect the first few base64 chars to detect the image format
+  // Base64-encoded magic bytes: JPEG=/9j, PNG=iVBO, GIF=R0lG, WEBP=UklG
+  if (base64.startsWith("/9j")) return "image/jpeg";
+  if (base64.startsWith("iVBO")) return "image/png";
+  if (base64.startsWith("R0lG")) return "image/gif";
+  if (base64.startsWith("UklG")) return "image/webp";
+  return "image/jpeg"; // fallback
+}
+
 export async function extractBusinessCard(
   frontImageBase64: string,
   backImageBase64?: string
@@ -53,7 +63,7 @@ export async function extractBusinessCard(
       type: "image",
       source: {
         type: "base64",
-        media_type: "image/jpeg",
+        media_type: detectMediaType(frontImageBase64),
         data: frontImageBase64,
       },
     },
@@ -64,7 +74,7 @@ export async function extractBusinessCard(
       type: "image",
       source: {
         type: "base64",
-        media_type: "image/jpeg",
+        media_type: detectMediaType(backImageBase64),
         data: backImageBase64,
       },
     });
