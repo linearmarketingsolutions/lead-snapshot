@@ -2,9 +2,8 @@
 const nextConfig = {
   experimental: {
     typedRoutes: true,
+    serverComponentsExternalPackages: ["@anthropic-ai/sdk"],
   },
-  // Ensure Anthropic SDK only runs server-side
-  serverExternalPackages: ["@anthropic-ai/sdk"],
 };
 
 export default nextConfig;
