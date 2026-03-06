@@ -44,7 +44,6 @@ export function scoreColor(score: number | null): {
 export function stripImages<T extends { cardImageFront?: string; cardImageBack?: string }>(
   lead: T
 ): Omit<T, "cardImageFront" | "cardImageBack"> {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { cardImageFront: _f, cardImageBack: _b, ...rest } = lead;
+  const { cardImageFront: _f, cardImageBack: _b, ...rest } = lead; // intentionally unused - strips images
   return rest;
 }
