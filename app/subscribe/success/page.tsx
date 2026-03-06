@@ -1,17 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 export default function SubscribeSuccessPage() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
-  const [verified, setVerified] = useState(false);
-
-  useEffect(() => {
-    if (sessionId) setVerified(true);
-  }, [sessionId]);
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-4 bg-gradient-to-br from-green-50 via-white to-brand-50">
