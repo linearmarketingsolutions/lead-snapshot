@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLeadStore } from "@/hooks/useLeadStore";
 import { CardCapture } from "@/components/capture/CardCapture";
 import { NavBar } from "@/components/NavBar";
 
-export default function ScanPage() {
+function ScanPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const hasHydrated = useLeadStore((s) => s.hasHydrated);
@@ -28,9 +28,10 @@ export default function ScanPage() {
     if (hasHydrated && !session && !rep) router.replace("/");
   }, [hasHydrated, session, router, searchParams]);
 
-  const activeSession = session || 
-    (searchParams.get("rep") && searchParams.get("show") 
-      ? { repName: searchParams.get("rep")!, showName: searchParams.get("show")! } 
+  const activeSession =
+    session ||
+    (searchParams.get("rep") && searchParams.get("show")
+      ? { repName: searchParams.get("rep")!, showName: searchParams.get("show")! }
       : null);
 
   if (!activeSession) return null;
@@ -42,5 +43,13 @@ export default function ScanPage() {
         <CardCapture />
       </main>
     </>
+  );
+}
+
+export default function ScanPage() {
+  return (
+    <Suspense fallback={null}>
+      <ScanPageInner />
+    </Suspense>
   );
 }
