@@ -44,6 +44,14 @@ export function LeadCard({ lead }: LeadCardProps) {
           </a>
         )}
 
+        <p className="text-xs text-slate-500 truncate mt-0.5">
+          {[lead.website, lead.location].filter(Boolean).join(" · ")}
+        </p>
+
+        <p className="text-xs text-slate-400 truncate mt-0.5">
+          {[lead.linkedin, lead.instagram, lead.tiktok].filter(Boolean).join(" · ")}
+        </p>
+
         {lead.notes && (
           <p className="text-xs text-slate-400 italic mt-1 truncate">
             &ldquo;{lead.notes}&rdquo;

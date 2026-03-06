@@ -1,21 +1,39 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLeadStore } from "@/hooks/useLeadStore";
 import { CardCapture } from "@/components/capture/CardCapture";
 import { NavBar } from "@/components/NavBar";
 
 export default function ScanPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const hasHydrated = useLeadStore((s) => s.hasHydrated);
   const session = useLeadStore((s) => s.session);
+  const setSession = useLeadStore((s) => s.setSession);
 
-  // Guard — if no session, send back to setup
+  // Accept session from URL params (fixes mobile Safari Zustand rehydration race)
   useEffect(() => {
-    if (!session) router.replace("/");
-  }, [session, router]);
+    const rep = searchParams.get("rep");
+    const show = searchParams.get("show");
+    if (rep && show) {
+      setSession({ repName: rep, showName: show });
+    }
+  }, [searchParams, setSession]);
 
-  if (!session) return null;
+  // Guard — if no session after hydration and no URL params, send back to setup
+  useEffect(() => {
+    const rep = searchParams.get("rep");
+    if (hasHydrated && !session && !rep) router.replace("/");
+  }, [hasHydrated, session, router, searchParams]);
+
+  const activeSession = session || 
+    (searchParams.get("rep") && searchParams.get("show") 
+      ? { repName: searchParams.get("rep")!, showName: searchParams.get("show")! } 
+      : null);
+
+  if (!activeSession) return null;
 
   return (
     <>

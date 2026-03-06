@@ -24,7 +24,13 @@ Required JSON shape:
   "company": "company or organization name",
   "email": "primary email address",
   "phone": "primary phone number with country code if present",
-  "linkedin": "linkedin.com/in/handle or full URL if present, else empty string"
+  "linkedin": "linkedin.com/in/handle or full URL if present, else empty string",
+  "tiktok": "tiktok handle or URL if present, else empty string",
+  "instagram": "instagram handle or URL if present, else empty string",
+  "website": "company/personal website URL if present, else empty string",
+  "location": "any location info shown (city/state/country/address), else empty string",
+  "alignmentScore": 1-10 integer or null,
+  "alignmentRationale": "short reason for score based on title/company role context, or null"
 }
 
 Rules:
@@ -32,6 +38,9 @@ Rules:
 - Include country code for phone if shown
 - Normalize linkedin to linkedin.com/in/handle format
 - If multiple phones, pick the first/primary
+- For alignmentScore, infer likely decision-making influence from title/company context on the card itself
+- Use null for alignmentScore when there is not enough signal
+- Keep alignmentRationale under 20 words
 - Do not invent data — only extract what is visible`;
 
 export async function extractBusinessCard(
@@ -67,7 +76,7 @@ export async function extractBusinessCard(
 
   const message = await anthropic.messages.create({
     model: EXTRACTION_MODEL,
-    max_tokens: 512,
+    max_tokens: 768,
     messages: [{ role: "user", content }],
   });
 

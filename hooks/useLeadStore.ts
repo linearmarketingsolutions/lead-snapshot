@@ -7,6 +7,9 @@ import type { Lead, LeadInput, RepSession } from "@/types";
 import { stripImages } from "@/lib/utils";
 
 type LeadStore = {
+  hasHydrated: boolean;
+  setHasHydrated: (hydrated: boolean) => void;
+
   // Session
   session: RepSession | null;
   setSession: (session: RepSession) => void;
@@ -27,6 +30,9 @@ type LeadStore = {
 export const useLeadStore = create<LeadStore>()(
   persist(
     (set, get) => ({
+      hasHydrated: false,
+      setHasHydrated: (hydrated) => set({ hasHydrated: hydrated }),
+
       session: null,
 
       setSession: (session) => set({ session }),
@@ -36,13 +42,17 @@ export const useLeadStore = create<LeadStore>()(
       leads: [],
 
       addLead: (input) => {
+        const imageFields = {
+          ...(input.cardImageFront ? { cardImageFront: input.cardImageFront } : {}),
+          ...(input.cardImageBack ? { cardImageBack: input.cardImageBack } : {}),
+        };
+
         const lead: Lead = {
           ...input,
           id: uuidv4(),
           capturedAt: new Date().toISOString(),
           // Strip images from persisted store — keep only for in-session review
-          cardImageFront: input.cardImageFront,
-          cardImageBack: input.cardImageBack,
+          ...imageFields,
         };
         set((state) => ({
           leads: [lead, ...state.leads],
@@ -78,7 +88,11 @@ export const useLeadStore = create<LeadStore>()(
             l.name.toLowerCase().includes(q) ||
             l.company.toLowerCase().includes(q) ||
             l.email.toLowerCase().includes(q) ||
-            l.title.toLowerCase().includes(q)
+            l.title.toLowerCase().includes(q) ||
+            l.website.toLowerCase().includes(q) ||
+            l.location.toLowerCase().includes(q) ||
+            l.instagram.toLowerCase().includes(q) ||
+            l.tiktok.toLowerCase().includes(q)
         );
       },
     }),
@@ -90,6 +104,9 @@ export const useLeadStore = create<LeadStore>()(
         session: state.session,
         leads: state.leads.map((l) => stripImages(l)),
       }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     }
   )
 );

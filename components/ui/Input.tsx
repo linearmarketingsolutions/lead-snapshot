@@ -2,9 +2,9 @@ import { forwardRef, type InputHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 type InputProps = InputHTMLAttributes<HTMLInputElement> & {
-  label?: string;
-  error?: string;
-  icon?: string;
+  label?: string | undefined;
+  error?: string | undefined;
+  icon?: string | undefined;
 };
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(

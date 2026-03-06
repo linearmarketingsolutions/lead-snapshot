@@ -13,7 +13,12 @@ const CSV_HEADERS = [
   "Email",
   "Phone",
   "LinkedIn",
+  "TikTok",
+  "Instagram",
+  "Website",
+  "Location",
   "Alignment Score",
+  "Alignment Rationale",
   "Notes",
 ] as const;
 
@@ -49,7 +54,12 @@ export function leadsToCSV(leads: Lead[]): string {
       lead.email,
       lead.phone,
       lead.linkedin,
+      lead.tiktok,
+      lead.instagram,
+      lead.website,
+      lead.location,
       lead.alignmentScore,
+      lead.alignmentRationale,
       lead.notes,
     ].map(escapeCsvCell);
 

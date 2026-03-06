@@ -6,8 +6,9 @@ import { useLeadStore } from "@/hooks/useLeadStore";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { href: "/scan",      label: "Scan",   icon: "📸" },
-  { href: "/dashboard", label: "Leads",  icon: "🗂" },
+  { href: "/scan",      label: "Scan",    icon: "📸" },
+  { href: "/dashboard", label: "Leads",   icon: "🗂" },
+  { href: "/pricing",   label: "Upgrade", icon: "⚡" },
 ] as const;
 
 export function NavBar() {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLeadStore } from "@/hooks/useLeadStore";
 import { repSessionSchema } from "@/lib/validators";
 import { Button } from "@/components/ui/Button";
@@ -11,24 +11,36 @@ import { useRouter } from "next/navigation";
 export default function SetupPage() {
   const router = useRouter();
   const setSession = useLeadStore((s) => s.setSession);
+  const hasHydrated = useLeadStore((s) => s.hasHydrated);
   const session = useLeadStore((s) => s.session);
 
   const [repName, setRepName] = useState(session?.repName ?? "");
   const [showName, setShowName] = useState(session?.showName ?? "");
   const [errors, setErrors] = useState<{ repName?: string; showName?: string }>({});
 
+  useEffect(() => {
+    if (!hasHydrated || !session) return;
+    setRepName((prev) => (prev ? prev : session.repName));
+    setShowName((prev) => (prev ? prev : session.showName));
+  }, [hasHydrated, session]);
+
   const handleStart = () => {
     const result = repSessionSchema.safeParse({ repName, showName });
     if (!result.success) {
       const fieldErrors = result.error.flatten().fieldErrors;
-      setErrors({
-        repName: fieldErrors.repName?.[0],
-        showName: fieldErrors.showName?.[0],
-      });
+      const nextErrors: { repName?: string; showName?: string } = {};
+      if (fieldErrors.repName?.[0]) nextErrors.repName = fieldErrors.repName[0];
+      if (fieldErrors.showName?.[0]) nextErrors.showName = fieldErrors.showName[0];
+      setErrors(nextErrors);
       return;
     }
     setSession(result.data);
-    router.push("/scan");
+    // Pass session via URL params to avoid Zustand rehydration race on mobile Safari
+    const params = new URLSearchParams({
+      rep: result.data.repName,
+      show: result.data.showName,
+    });
+    router.push(`/scan?${params.toString()}`);
   };
 
   return (

@@ -7,6 +7,12 @@ export const extractedCardSchema = z.object({
   email: z.string(),
   phone: z.string(),
   linkedin: z.string(),
+  tiktok: z.string(),
+  instagram: z.string(),
+  website: z.string(),
+  location: z.string(),
+  alignmentScore: z.number().int().min(1).max(10).nullable(),
+  alignmentRationale: z.string().nullable(),
 });
 
 export const extractCardRequestSchema = z.object({
@@ -28,9 +34,21 @@ export const leadSchema = z.object({
   email: z.string(),
   phone: z.string(),
   linkedin: z.string(),
+  tiktok: z.string(),
+  instagram: z.string(),
+  website: z.string(),
+  location: z.string(),
   alignmentScore: z.number().int().min(1).max(10).nullable(),
   alignmentRationale: z.string().nullable(),
   notes: z.string(),
+});
+
+export const leadInputSchema = leadSchema.omit({
+  id: true,
+  capturedAt: true,
+}).extend({
+  cardImageFront: z.string().optional(),
+  cardImageBack: z.string().optional(),
 });
 
 export const repSessionSchema = z.object({
@@ -38,6 +56,12 @@ export const repSessionSchema = z.object({
   showName: z.string().min(1).max(200),
 });
 
+export const googleSheetsWebhookUrlSchema = z.string().url().refine(
+  (url) => url.startsWith("https://script.google.com/"),
+  "GOOGLE_SHEETS_WEBHOOK_URL must be a Google Apps Script URL"
+);
+
 export type ExtractCardRequest = z.infer<typeof extractCardRequestSchema>;
 export type ExtractedCardData = z.infer<typeof extractedCardSchema>;
 export type LeadData = z.infer<typeof leadSchema>;
+export type LeadInputData = z.infer<typeof leadInputSchema>;

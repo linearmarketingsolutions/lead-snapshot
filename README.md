@@ -33,6 +33,8 @@ Open [http://localhost:3000](http://localhost:3000)
 | Variable | Required | Description |
 |---|---|---|
 | `ANTHROPIC_API_KEY` | ✅ | From [console.anthropic.com](https://console.anthropic.com) |
+| `GOOGLE_SHEETS_WEBHOOK_URL` | Optional | Google Apps Script webhook URL used by `POST /api/leads` |
+| `GOOGLE_SHEETS_WEBHOOK_SECRET` | Optional | Shared secret for HMAC signature header `x-leadsnap-signature` |
 | `DATABASE_URL` | Phase 2 | Postgres connection string |
 | `NEXTAUTH_SECRET` | Phase 2 | Random 32-char secret |
 

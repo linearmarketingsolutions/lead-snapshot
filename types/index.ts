@@ -12,6 +12,10 @@ export type Lead = {
   email: string;
   phone: string;
   linkedin: string;
+  tiktok: string;
+  instagram: string;
+  website: string;
+  location: string;
 
   // Enrichment (added post-capture)
   alignmentScore: number | null; // 1-10, null until scored
@@ -25,7 +29,21 @@ export type Lead = {
 
 export type LeadInput = Omit<Lead, "id" | "capturedAt">;
 
-export type ExtractedCard = Pick<Lead, "name" | "title" | "company" | "email" | "phone" | "linkedin">;
+export type ExtractedCard = Pick<
+  Lead,
+  | "name"
+  | "title"
+  | "company"
+  | "email"
+  | "phone"
+  | "linkedin"
+  | "tiktok"
+  | "instagram"
+  | "website"
+  | "location"
+  | "alignmentScore"
+  | "alignmentRationale"
+>;
 
 export type RepSession = {
   repName: string;

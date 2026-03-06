@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useCardScanner } from "@/hooks/useCardScanner";
 import { useLeadStore } from "@/hooks/useLeadStore";
 import { ImageDropZone } from "./ImageDropZone";
@@ -7,11 +8,26 @@ import { CardReview } from "./CardReview";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
 import { Card } from "@/components/ui/Card";
+import type { LeadInput } from "@/types";
+
+async function syncLeadToSheets(input: LeadInput): Promise<void> {
+  const res = await fetch("/api/leads", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: "Unknown error" }));
+    throw new Error((err as { error?: string }).error ?? "Sync failed");
+  }
+}
 
 export function CardCapture() {
   const session = useLeadStore((s) => s.session);
   const addLead = useLeadStore((s) => s.addLead);
   const { images, scanState, setImage, clearImages, scan, reset, canScan } = useCardScanner();
+  const [saveSyncError, setSaveSyncError] = useState<string | null>(null);
 
   if (!session) return null;
 
@@ -21,9 +37,14 @@ export function CardCapture() {
         extracted={scanState.data}
         images={images}
         onSave={(input) => {
+          setSaveSyncError(null);
           addLead(input);
           clearImages();
           reset();
+          void syncLeadToSheets(input).catch((error) => {
+            console.error("[card-capture] failed to sync lead", error);
+            setSaveSyncError("Lead saved, but Google Sheets sync failed.");
+          });
         }}
         onBack={() => reset()}
       />
@@ -40,6 +61,12 @@ export function CardCapture() {
           {session.showName}
         </p>
       </div>
+
+      {saveSyncError && (
+        <div className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-700">
+          {saveSyncError}
+        </div>
+      )}
 
       {scanState.status === "scanning" ? (
         <Card className="p-6">

@@ -8,13 +8,14 @@ import { NavBar } from "@/components/NavBar";
 
 export default function DashboardPage() {
   const router = useRouter();
+  const hasHydrated = useLeadStore((s) => s.hasHydrated);
   const session = useLeadStore((s) => s.session);
 
   useEffect(() => {
-    if (!session) router.replace("/");
-  }, [session, router]);
+    if (hasHydrated && !session) router.replace("/");
+  }, [hasHydrated, session, router]);
 
-  if (!session) return null;
+  if (!hasHydrated || !session) return null;
 
   return (
     <>
